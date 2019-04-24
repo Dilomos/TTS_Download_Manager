@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui 3dcore 3drender 3dinput 3dlogic 3dextras 3danimation
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -27,13 +27,19 @@ CONFIG += c++11
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
+    orbittransformcontroller.cpp \
+    tools.cpp \
     tts_game.cpp \
-    tts_custom_model.cpp
+    tts_custom_model.cpp \
+    tts_treewidgetitem.cpp
 
 HEADERS += \
         mainwindow.h \
+    orbittransformcontroller.h \
+    tools.h \
     tts_game.h \
-    tts_custom_model.h
+    tts_custom_model.h \
+    tts_treewidgetitem.h
 
 FORMS += \
         mainwindow.ui
@@ -42,3 +48,6 @@ FORMS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    res.qrc

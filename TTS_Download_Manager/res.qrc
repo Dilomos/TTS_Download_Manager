@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>empty.obj</file>
+        <file>empty.png</file>
+    </qresource>
+</RCC>

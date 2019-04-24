@@ -2,26 +2,27 @@
 #define TTS_GAME_H
 
 #include <QListWidgetItem>
-#include <QTreeWidgetItem>
 #include <QPixmap>
 #include <QList>
 #include "tts_custom_model.h"
+#include "tts_treewidgetitem.h"
 
-class TTS_Game : public QListWidgetItem,public QTreeWidgetItem
+class TTS_Game : public QListWidgetItem,public TTS_TreeWidgetItem
 {
 public:
     TTS_Game(QString filename,int index);
     QString getPixPath(void);
     QString getFileName(void);
-    unsigned int getIndex(void);
-    QTreeWidgetItem *getCustomModelTreeItem(void);
+    int getIndex(void);
+    TTS_TreeWidgetItem *getCustomModelTreeItem(void);
 
 private:
     QString m_jsonPath;
     QString m_iconePath;
     int m_gameIndex;
-    QTreeWidgetItem *m_customModelParentTreeItem;
+    TTS_TreeWidgetItem *m_customModelParentTreeItem;
     QMap<QString,TTS_Custom_Model*> m_customModelMap;
+    void exploreContent(QJsonArray objects);
 
     int figCount=0;
     int modelCount=0;
@@ -32,6 +33,8 @@ private:
     int deckCustomCount=0;
     int boardCount=0;
     int cardCount=0;
+    int tokenCount=0;
+    int tileCount=0;
 };
 
 #endif // TTS_GAME_H

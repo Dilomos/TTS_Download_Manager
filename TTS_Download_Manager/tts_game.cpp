@@ -28,21 +28,6 @@ TTS_Game::TTS_Game(QString filename,int index)
     QJsonObject json=loadDoc.object();
     QString mName;
 
-    /*foreach(const QString& key, json.keys()) {
-           QJsonValue value = json.value(key);
-           QTextStream(stdout) << key;
-
-           if(json[key].isString())
-            QTextStream(stdout)<< " : is String "<<endl;
-
-           if(json[key].isArray())
-            QTextStream(stdout)<<" : is Array <== "<<endl;
-
-           //<<", Value = " << value.toString();
-       }
-
-    QTextStream(stdout) << " "<< endl<<endl;*/
-
     if (json.contains("SaveName") && json["SaveName"].isString())
     {
         mName = json["SaveName"].toString();
@@ -53,48 +38,75 @@ TTS_Game::TTS_Game(QString filename,int index)
 
     if (json.contains("ObjectStates") && json["ObjectStates"].isArray())
     {
-        m_customModelParentTreeItem = new QTreeWidgetItem(this,QStringList("Custom Model"));
+        m_customModelParentTreeItem = new TTS_TreeWidgetItem(this,QStringList("Custom Model"));
 
         QJsonArray objects=json["ObjectStates"].toArray();
 
-        for (int index = 0; index < objects.size(); ++index) {
-            QJsonObject object = objects[index].toObject();
+        exploreContent(objects);
+    }
+}
 
-            if (object.contains("Name") /*&& object["Name"].isString()*/)
+void TTS_Game::exploreContent(QJsonArray objects)
+{
+    for (int index = 0; index < objects.size(); ++index) {
+        QJsonObject object = objects[index].toObject();
+
+        if (object.contains("Name"))
+        {
+            QString ObjectType=object["Name"].toString();
+            if(ObjectType == "Figurine_Custom")
+                figCount++;
+
+            if(ObjectType == "Custom_Model")
             {
-                QString ObjectType=object["Name"].toString();
-                if(ObjectType == "Figurine_Custom")
-                    figCount++;
-
-                if(ObjectType == "Custom_Model")
-                {
-                    modelCount++;
-                    TTS_Custom_Model *customModel = new TTS_Custom_Model(m_customModelParentTreeItem,object);
-                    if(!m_customModelMap.contains(customModel->getTexture()))
-                        m_customModelMap[customModel->getTexture()]=customModel;
-                    else
-                        delete customModel;
-                }
-
-
-                if(ObjectType == "Bag")
-                    bagCount++;
-                if(ObjectType == "Infinite_Bag")
-                    infBagCount++;
-                if(ObjectType == "Quarter")
-                    quarterCount++;
-                if(ObjectType == "DeckCustom")
-                    deckCustomCount++;
-                if(ObjectType == "Deck")
-                   deckCount++;
-                if(ObjectType == "Custom_Board")
-                    boardCount++;
-                if(ObjectType == "Card")
-                    cardCount++;
+                modelCount++;
+                TTS_Custom_Model *customModel = new TTS_Custom_Model(m_customModelParentTreeItem,object);
+                if(!m_customModelMap.contains(customModel->getOnlineModel()))
+                    m_customModelMap[customModel->getOnlineModel()]=customModel;
+                else
+                    delete customModel;
             }
+
+            if(ObjectType == "Bag")
+            {
+                bagCount++;
+                if (object.contains("ContainedObjects") && object["ContainedObjects"].isArray())
+                {
+                    QJsonArray items=object["ContainedObjects"].toArray();
+
+                    exploreContent(items);
+                }
+            }
+
+            if(ObjectType == "Infinite_Bag")
+            {
+                infBagCount++;
+                if (object.contains("ContainedObjects") && object["ContainedObjects"].isArray())
+                {
+                    QJsonArray items=object["ContainedObjects"].toArray();
+
+                    exploreContent(items);
+                }
+            }
+
+
+            if(ObjectType == "Quarter")
+                quarterCount++;
+            if(ObjectType == "DeckCustom")
+                deckCustomCount++;
+            if(ObjectType == "Deck")
+               deckCount++;
+            if(ObjectType == "Custom_Board")
+                boardCount++;
+            if(ObjectType == "Card")
+                cardCount++;
+            if(ObjectType == "Custom_Tile")
+                tileCount++;
+            if(ObjectType == "Custom_Token")
+                tokenCount++;
+
+
         }
-
-
     }
 }
 
@@ -108,12 +120,12 @@ QString TTS_Game::getFileName(void)
     return m_jsonPath;
 }
 
-unsigned int TTS_Game::getIndex(void)
+int TTS_Game::getIndex(void)
 {
     return m_gameIndex;
 }
 
-QTreeWidgetItem *TTS_Game::getCustomModelTreeItem(void)
+TTS_TreeWidgetItem *TTS_Game::getCustomModelTreeItem(void)
 {
    return m_customModelParentTreeItem;
 }
