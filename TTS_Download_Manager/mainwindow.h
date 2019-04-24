@@ -45,8 +45,8 @@ private:
 
 
 public slots:
-    void gameClicked(QListWidgetItem * item);
-    void itemClicked(QTreeWidgetItem * item);
+    void gameClicked(QListWidgetItem * item,QListWidgetItem * prevItem);
+    void itemClicked(QTreeWidgetItem * item,QTreeWidgetItem * prevItem);
 
 };
 

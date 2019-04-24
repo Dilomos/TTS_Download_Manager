@@ -29,6 +29,7 @@ SOURCES += \
         mainwindow.cpp \
     orbittransformcontroller.cpp \
     tools.cpp \
+    tts_customimage.cpp \
     tts_game.cpp \
     tts_custom_model.cpp \
     tts_treewidgetitem.cpp
@@ -37,6 +38,7 @@ HEADERS += \
         mainwindow.h \
     orbittransformcontroller.h \
     tools.h \
+    tts_customimage.h \
     tts_game.h \
     tts_custom_model.h \
     tts_treewidgetitem.h

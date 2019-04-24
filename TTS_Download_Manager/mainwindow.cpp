@@ -3,6 +3,8 @@
 #include "tts_game.h"
 #include "tools.h"
 #include "orbittransformcontroller.h"
+#include "tts_custom_model.h"
+#include "tts_customimage.h"
 
 #include <QTextStream>
 #include <QDirIterator>
@@ -29,9 +31,9 @@ MainWindow::~MainWindow()
 void MainWindow::searchGames(void)
 {
 
-    modPath="E:/Coding/github/TTS_Download_Manager/Mods";
+    //modPath="E:/Coding/github/TTS_Download_Manager/Mods";
     //modPath="C:/Users/E9868092/Downloads/perso/TTS/Mods";
-    //modPath="G:/Jeux/SteamLibrary/SteamApps/common/Tabletop Simulator/Tabletop Simulator_Data/Mods";
+    modPath="G:/Jeux/SteamLibrary/SteamApps/common/Tabletop Simulator/Tabletop Simulator_Data/Mods";
 
     QString workshopPath=modPath+"\\Workshop";
     QString modelPath=modPath+"\\Models";
@@ -69,8 +71,8 @@ void MainWindow::searchGames(void)
 
     ui->progressBar->setVisible(false);
 
-    connect(ui->listWidget, &QListWidget::itemClicked, this,&MainWindow::gameClicked);
-    connect(ui->treeWidget, &QTreeWidget::itemClicked, this,&MainWindow::itemClicked);
+    //connect(ui->listWidget, &QListWidget::itemClicked, this,&MainWindow::gameClicked);
+    //connect(ui->treeWidget, &QTreeWidget::itemClicked, this,&MainWindow::itemClicked);
     connect(ui->listWidget, &QListWidget::currentItemChanged, this,&MainWindow::gameClicked);
     connect(ui->treeWidget, &QTreeWidget::currentItemChanged, this,&MainWindow::itemClicked);
 }
@@ -149,7 +151,7 @@ void MainWindow::init3DView(void)
     ui->widget3D->setVisible(false);
 }
 
-void MainWindow::gameClicked(QListWidgetItem * item)
+void MainWindow::gameClicked(QListWidgetItem * item,QListWidgetItem * prevItem)
 {
     ui->label->setPixmap(QPixmap(dynamic_cast <TTS_Game*>(item)->getPixPath()));
     ui->statusBar->showMessage(dynamic_cast <TTS_Game*>(item)->getFileName());
@@ -162,7 +164,7 @@ void MainWindow::gameClicked(QListWidgetItem * item)
     ui->treeWidget->header()->resizeSections(QHeaderView::ResizeToContents);
 }
 
-void MainWindow::itemClicked(QTreeWidgetItem * item)
+void MainWindow::itemClicked(QTreeWidgetItem * item,QTreeWidgetItem * prevItem)
 {
     ui->widgetTexture->setVisible(false);
     ui->widget3D->setVisible(false);

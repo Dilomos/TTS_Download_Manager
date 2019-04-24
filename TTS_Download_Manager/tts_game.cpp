@@ -1,4 +1,6 @@
 #include "tts_game.h"
+#include "tts_custom_model.h"
+#include "tts_customimage.h"
 
 #include <QFile>
 #include <QJsonArray>
@@ -6,6 +8,7 @@
 #include <QRandomGenerator>
 #include <QTextStream>
 #include <QJsonObject>
+#include <QTextStream>
 
 TTS_Game::TTS_Game(QString filename,int index)
     : m_jsonPath(filename),m_gameIndex(index)
@@ -39,11 +42,15 @@ TTS_Game::TTS_Game(QString filename,int index)
     if (json.contains("ObjectStates") && json["ObjectStates"].isArray())
     {
         m_customModelParentTreeItem = new TTS_TreeWidgetItem(this,QStringList("Custom Model"));
+        m_customImageParentTreeItem = new TTS_TreeWidgetItem(this,QStringList("Custom Images"));
 
         QJsonArray objects=json["ObjectStates"].toArray();
 
         exploreContent(objects);
     }
+
+    foreach (QString value, m_unknownedTag)
+        QTextStream(stdout) <<value<<endl;
 }
 
 void TTS_Game::exploreContent(QJsonArray objects)
@@ -54,10 +61,12 @@ void TTS_Game::exploreContent(QJsonArray objects)
         if (object.contains("Name"))
         {
             QString ObjectType=object["Name"].toString();
-            if(ObjectType == "Figurine_Custom")
-                figCount++;
 
-            if(ObjectType == "Custom_Model")
+            if(ObjectType == "Figurine_Custom")
+            {
+                figCount++;
+            }
+            else if(ObjectType == "Custom_Model")
             {
                 modelCount++;
                 TTS_Custom_Model *customModel = new TTS_Custom_Model(m_customModelParentTreeItem,object);
@@ -66,8 +75,7 @@ void TTS_Game::exploreContent(QJsonArray objects)
                 else
                     delete customModel;
             }
-
-            if(ObjectType == "Bag")
+            else if(ObjectType == "Bag")
             {
                 bagCount++;
                 if (object.contains("ContainedObjects") && object["ContainedObjects"].isArray())
@@ -77,8 +85,7 @@ void TTS_Game::exploreContent(QJsonArray objects)
                     exploreContent(items);
                 }
             }
-
-            if(ObjectType == "Infinite_Bag")
+            else if(ObjectType == "Infinite_Bag")
             {
                 infBagCount++;
                 if (object.contains("ContainedObjects") && object["ContainedObjects"].isArray())
@@ -88,24 +95,37 @@ void TTS_Game::exploreContent(QJsonArray objects)
                     exploreContent(items);
                 }
             }
-
-
-            if(ObjectType == "Quarter")
+            else if(ObjectType == "Quarter")
                 quarterCount++;
-            if(ObjectType == "DeckCustom")
+            else if(ObjectType == "DeckCustom")
                 deckCustomCount++;
-            if(ObjectType == "Deck")
+            else if(ObjectType == "Deck")
                deckCount++;
-            if(ObjectType == "Custom_Board")
+            else if(ObjectType == "Custom_Board")
                 boardCount++;
-            if(ObjectType == "Card")
+            else if(ObjectType == "Card")
                 cardCount++;
-            if(ObjectType == "Custom_Tile")
+            else if(ObjectType == "Custom_Tile")
+            {
                 tileCount++;
-            if(ObjectType == "Custom_Token")
+                TTS_CustomImage *customImage = new TTS_CustomImage(m_customImageParentTreeItem,object);
+                if(!m_customImageMap.contains(customImage->getOnlineImageFront()))
+                    m_customImageMap[customImage->getOnlineImageFront()]=customImage;
+                else
+                    delete customImage;
+            }
+            else if(ObjectType == "Custom_Token")
+            {
                 tokenCount++;
 
+            }
+            else
+            {
 
+               if(!m_unknownedTag.contains(ObjectType)){
+                   m_unknownedTag[ObjectType]=ObjectType;
+               }
+            }
         }
     }
 }

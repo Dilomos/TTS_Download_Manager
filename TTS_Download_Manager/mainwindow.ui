@@ -104,7 +104,7 @@
               <property name="maximumSize">
                <size>
                 <width>256</width>
-                <height>128</height>
+                <height>256</height>
                </size>
               </property>
               <property name="frameShape">

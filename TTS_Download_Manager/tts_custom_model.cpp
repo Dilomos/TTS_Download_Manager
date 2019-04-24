@@ -1,6 +1,4 @@
 #include "tts_custom_model.h"
-#include <QDialog>
-#include <QLabel>
 #include "tools.h"
 #include "mainwindow.h"
 
@@ -13,10 +11,12 @@ TTS_Custom_Model::TTS_Custom_Model(TTS_TreeWidgetItem*parent,QJsonObject &object
     if(m_name == "")
         m_name="(none)";
 
-    m_model=object["CustomMesh"].toObject()["MeshURL"].toString();
-    m_texture=object["CustomMesh"].toObject()["DiffuseURL"].toString();
-    m_collider=object["CustomMesh"].toObject()["ColliderURL"].toString();
-    m_normal=object["CustomMesh"].toObject()["NormalURL"].toString();
+    QJsonObject customMesh = object["CustomMesh"].toObject();
+
+    m_model=customMesh["MeshURL"].toString();
+    m_texture=customMesh["DiffuseURL"].toString();
+    m_collider=customMesh["ColliderURL"].toString();
+    m_normal=customMesh["NormalURL"].toString();
 
     setText(0,m_name);
     setText(1,m_texture);

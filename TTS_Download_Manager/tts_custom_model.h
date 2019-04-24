@@ -15,12 +15,12 @@ public:
 
 private:
     QString m_name;
+
     QString m_model;
     QString m_texture;
     QString m_collider;
     QString m_normal;
 
-    QString m_localName;
     QString m_localModel;
     QString m_localTexture;
     QString m_localCollider;

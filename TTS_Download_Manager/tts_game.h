@@ -4,8 +4,11 @@
 #include <QListWidgetItem>
 #include <QPixmap>
 #include <QList>
-#include "tts_custom_model.h"
+
 #include "tts_treewidgetitem.h"
+
+class TTS_Custom_Model;
+class TTS_CustomImage;
 
 class TTS_Game : public QListWidgetItem,public TTS_TreeWidgetItem
 {
@@ -21,8 +24,13 @@ private:
     QString m_iconePath;
     int m_gameIndex;
     TTS_TreeWidgetItem *m_customModelParentTreeItem;
+    TTS_TreeWidgetItem *m_customImageParentTreeItem;
+
     QMap<QString,TTS_Custom_Model*> m_customModelMap;
+    QMap<QString,TTS_CustomImage*> m_customImageMap;
     void exploreContent(QJsonArray objects);
+
+    QMap<QString,QString> m_unknownedTag;
 
     int figCount=0;
     int modelCount=0;
