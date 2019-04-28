@@ -9,6 +9,8 @@ public:
     TTS_CustomImage(TTS_TreeWidgetItem*parent,QJsonObject &object);
     QString getOnlineImageFront(void);
     QString getLocalImageFront(void);
+    QString getOnlineImageBack(void);
+    QString getLocalImageBack(void);
 
 private:
     QString m_name;

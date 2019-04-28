@@ -9,7 +9,7 @@ TTS_Custom_Model::TTS_Custom_Model(TTS_TreeWidgetItem*parent,QJsonObject &object
 {
     m_name=object["Nickname"].toString();
     if(m_name == "")
-        m_name="(none)";
+        m_name="(no name)";
 
     QJsonObject customMesh = object["CustomMesh"].toObject();
 

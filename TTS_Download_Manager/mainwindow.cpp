@@ -11,6 +11,19 @@
 
 QString MainWindow::modPath="";
 
+GameLoaderThread::GameLoaderThread(QListWidget* m_listToLoad)
+    :m_listToLoad(m_listToLoad)
+{}
+
+void GameLoaderThread::run() {
+    QString result("OK");
+    for (int i = 0; i < m_listToLoad->count(); i++) {
+        emit readingGameNumber(i);
+        dynamic_cast <TTS_Game*>(m_listToLoad->item(i))->loadGameFromFile();
+        }
+    emit resultReady(result);
+}
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -32,24 +45,23 @@ void MainWindow::searchGames(void)
 {
 
     //modPath="E:/Coding/github/TTS_Download_Manager/Mods";
-    //modPath="C:/Users/E9868092/Downloads/perso/TTS/Mods";
     modPath="G:/Jeux/SteamLibrary/SteamApps/common/Tabletop Simulator/Tabletop Simulator_Data/Mods";
+    //modPath="C:/Users/E9868092/Downloads/perso/TTS/Mods";
 
-    QString workshopPath=modPath+"\\Workshop";
-    QString modelPath=modPath+"\\Models";
-    QString imgPath=modPath+"\\Images";
+    QString workshopPath=modPath+"/Workshop";
+   /* QString modelPath=modPath+"/Models";
+    QString imgPath=modPath+"/Images";
+*/
+
 
     QStringList listFilter;
     listFilter << "*.json";
 
     QDirIterator dirIterator(workshopPath, listFilter ,QDir::Files | QDir::NoSymLinks, QDirIterator::Subdirectories);
 
-    // Variable qui contiendra tous les fichiers correspondant à notre recherche
     QStringList fileList;
-    // Tant qu'on n'est pas arrivé à la fin de l'arborescence...
     while(dirIterator.hasNext())
     {
-        // ...on va au prochain fichier correspondant à notre filtre
         fileList << dirIterator.next();
     }
 
@@ -68,13 +80,22 @@ void MainWindow::searchGames(void)
         //QTextStream(stdout) << fileList.at(i)<<endl;
     }
 
+    //ui->progressBar->setVisible(false);
 
-    ui->progressBar->setVisible(false);
-
-    //connect(ui->listWidget, &QListWidget::itemClicked, this,&MainWindow::gameClicked);
-    //connect(ui->treeWidget, &QTreeWidget::itemClicked, this,&MainWindow::itemClicked);
     connect(ui->listWidget, &QListWidget::currentItemChanged, this,&MainWindow::gameClicked);
     connect(ui->treeWidget, &QTreeWidget::currentItemChanged, this,&MainWindow::itemClicked);
+
+    GameLoaderThread *gameLoaderThread = new GameLoaderThread(ui->listWidget);
+        connect(gameLoaderThread, &GameLoaderThread::readingGameNumber, this, &MainWindow::updateProgressBar);
+        connect(gameLoaderThread, &GameLoaderThread::finished, gameLoaderThread, &QObject::deleteLater);
+        gameLoaderThread->start();
+}
+
+void MainWindow::updateProgressBar(const int &val)
+{
+    ui->progressBar->setValue(val);
+    if(val == ui->progressBar->maximum())
+         ui->progressBar->setVisible(false);
 }
 
 void MainWindow::init3DView(void)
@@ -153,6 +174,8 @@ void MainWindow::init3DView(void)
 
 void MainWindow::gameClicked(QListWidgetItem * item,QListWidgetItem * prevItem)
 {
+    dynamic_cast <TTS_Game*>(item)->loadGameFromFile();
+
     ui->label->setPixmap(QPixmap(dynamic_cast <TTS_Game*>(item)->getPixPath()));
     ui->statusBar->showMessage(dynamic_cast <TTS_Game*>(item)->getFileName());
     ui->lGameCount->setText(QString::number(dynamic_cast <TTS_Game*>(item)->getIndex())+"/"+QString::number(gameCount));
@@ -166,35 +189,104 @@ void MainWindow::gameClicked(QListWidgetItem * item,QListWidgetItem * prevItem)
 
 void MainWindow::itemClicked(QTreeWidgetItem * item,QTreeWidgetItem * prevItem)
 {
-    ui->widgetTexture->setVisible(false);
-    ui->widget3D->setVisible(false);
-    if(dynamic_cast <TTS_TreeWidgetItem*>(item)->isDisplayable())
+    if(item)
     {
-        if(dynamic_cast <TTS_TreeWidgetItem*>(item)->is3DModel())
+        ui->widgetTexture->setVisible(false);
+        ui->widget3D->setVisible(false);
+        if(dynamic_cast <TTS_TreeWidgetItem*>(item)->isDisplayable())
         {
-            QString modelPath=dynamic_cast <TTS_Custom_Model*>(item)->getLocalModel();
-            QString texturePath=dynamic_cast <TTS_Custom_Model*>(item)->getLocalTexture();
+            if(dynamic_cast <TTS_TreeWidgetItem*>(item)->is3DModel())
+            {
+                ui->widget3D->setVisible(true);
 
-            customModelEntity->removeComponent(customModelMesh);
-            customModelEntity->removeComponent(customModelTextureMaterial);
+                QString modelPath=dynamic_cast <TTS_Custom_Model*>(item)->getLocalModel();
+                QString texturePath=dynamic_cast <TTS_Custom_Model*>(item)->getLocalTexture();
 
-            if(modelPath !=  "")
-                customModelMesh->setSource(QUrl::fromLocalFile(modelPath));
-            else
-                customModelMesh->setSource(QUrl(QLatin1String("qrc:/empty.obj")));
+                customModelEntity->removeComponent(customModelMesh);
+                customModelEntity->removeComponent(customModelTextureMaterial);
 
-            if(texturePath !=  "")
-                customModelTextureLoader->setSource(QUrl::fromLocalFile(texturePath));
-            else
-                customModelTextureLoader->setSource(QUrl(QLatin1String("qrc:/empty.png")));
+                if(modelPath !=  "")
+                    customModelMesh->setSource(QUrl::fromLocalFile(modelPath));
+                else
+                    customModelMesh->setSource(QUrl(QLatin1String("qrc:/empty.obj")));
 
-            customModelTextureMaterial->setTexture(customModelTextureLoader);
+                if(texturePath !=  "")
+                    customModelTextureLoader->setSource(QUrl::fromLocalFile(texturePath));
+                else
+                    customModelTextureLoader->setSource(QUrl(QLatin1String("qrc:/empty.png")));
 
-            customModelEntity->addComponent(customModelMesh);
-            customModelEntity->addComponent(customModelTextureMaterial);
+                customModelTextureMaterial->setTexture(customModelTextureLoader);
 
-            ui->widget3D->setVisible(true);
+                customModelEntity->addComponent(customModelMesh);
+                customModelEntity->addComponent(customModelTextureMaterial); 
+            }
+
+            if(dynamic_cast <TTS_TreeWidgetItem*>(item)->isTexture())
+            {
+                ui->widgetTexture->setVisible(true);
+
+                QString frontImgPath=dynamic_cast <TTS_CustomImage*>(item)->getLocalImageFront();
+                QString backImgPath=dynamic_cast <TTS_CustomImage*>(item)->getLocalImageBack();
+
+                if(frontImgPath != "")
+                {
+                    ui->frontImgLabel->setVisible(true);
+                    ui->le_ImgFrontLocal->setVisible(true);
+                    ui->le_ImgFrontOnline->setVisible(true);
+
+                    QPixmap p(frontImgPath);
+                    int wlabel = ui->frontImgLabel->width();
+                    int hlabel = ui->frontImgLabel->height();
+
+                    ui->le_ImgFrontLocal->setText(frontImgPath);
+                    ui->le_ImgFrontOnline->setText(dynamic_cast <TTS_CustomImage*>(item)->getOnlineImageFront());
+
+                    if(wlabel<p.width() || hlabel<p.height())
+                    {
+                        ui->frontImgLabel->setPixmap(p.scaled(wlabel,hlabel,Qt::KeepAspectRatio));
+                    }
+                    else
+                    {
+                        ui->frontImgLabel->setPixmap(p);
+                    }
+                }
+                else
+                {
+                    ui->frontImgLabel->setVisible(false);
+                    ui->le_ImgFrontLocal->setVisible(false);
+                    ui->le_ImgFrontOnline->setVisible(false);
+                }
+
+                if(backImgPath != "")
+                {
+                    ui->backImgLabel->setVisible(true);
+                    ui->le_ImgBackLocal->setVisible(true);
+                    ui->le_ImgBackOnline->setVisible(true);
+
+                    QPixmap p(backImgPath);
+                    int wlabel = ui->frontImgLabel->width();
+                    int hlabel = ui->frontImgLabel->height();
+
+                    ui->le_ImgBackLocal->setText(backImgPath);
+                    ui->le_ImgBackOnline->setText(dynamic_cast <TTS_CustomImage*>(item)->getOnlineImageBack());
+
+                    if(wlabel<p.width() || hlabel<p.height())
+                    {
+                        ui->backImgLabel->setPixmap(p.scaled(wlabel,hlabel,Qt::KeepAspectRatio));
+                    }
+                    else
+                    {
+                        ui->backImgLabel->setPixmap(p);
+                    }
+
+                }
+                else
+                {
+                    ui->backImgLabel->setVisible(false);
+                    ui->le_ImgBackLocal->setVisible(false);
+                    ui->le_ImgBackOnline->setVisible(false);
+                }
+            }
         }
     }
-
 }

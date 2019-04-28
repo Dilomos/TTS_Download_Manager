@@ -7,7 +7,7 @@ TTS_CustomImage::TTS_CustomImage(TTS_TreeWidgetItem*parent,QJsonObject &object)
 {
     m_name=object["Nickname"].toString();
     if(m_name == "")
-        m_name="(none)";
+        m_name="(no name)";
 
     QJsonObject customImage = object["CustomImage"].toObject();
 
@@ -21,11 +21,11 @@ TTS_CustomImage::TTS_CustomImage(TTS_TreeWidgetItem*parent,QJsonObject &object)
     setDisplayable(true);
     setTexture(true);
 
-    m_localImageFront=MainWindow::modPath+"/Models/"+Tools::getModelSaveFileName(m_imageFront);
+    m_localImageFront=MainWindow::modPath+"/Images/"+Tools::getImgSaveFileName(m_imageFront);
     if(!Tools::fileExists(m_localImageFront))
         m_localImageFront ="";
 
-    m_localImageBack=MainWindow::modPath+"/Models/"+Tools::getModelSaveFileName(m_imageBack);
+    m_localImageBack=MainWindow::modPath+"/Images/"+Tools::getImgSaveFileName(m_imageBack);
     if(!Tools::fileExists(m_localImageBack))
         m_localImageBack ="";
 
@@ -40,3 +40,14 @@ QString TTS_CustomImage::getLocalImageFront(void)
 {
     return m_localImageFront;
 }
+
+QString TTS_CustomImage::getOnlineImageBack(void)
+{
+    return m_imageBack;
+}
+
+QString TTS_CustomImage::getLocalImageBack(void)
+{
+    return m_localImageBack;
+}
+

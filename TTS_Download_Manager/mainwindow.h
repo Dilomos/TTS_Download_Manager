@@ -12,10 +12,32 @@
 #include <Qt3DLogic>
 #include <Qt3DExtras>
 #include <Qt3DAnimation>
+#include <QThread>
+#include <QProgressBar>
 
 namespace Ui {
 class MainWindow;
 }
+
+class QLabel;
+
+class GameLoaderThread : public QThread
+{
+    Q_OBJECT
+
+public:
+    explicit GameLoaderThread(QListWidget* m_listToLoad);
+protected:
+    void run() override;
+
+signals:
+    void resultReady(const QString &s);
+    void readingGameNumber(const int &num);
+
+private:
+  QListWidget* m_listToLoad;
+
+};
 
 class MainWindow : public QMainWindow
 {
@@ -47,6 +69,8 @@ private:
 public slots:
     void gameClicked(QListWidgetItem * item,QListWidgetItem * prevItem);
     void itemClicked(QTreeWidgetItem * item,QTreeWidgetItem * prevItem);
+
+    void updateProgressBar(const int &val);
 
 };
 

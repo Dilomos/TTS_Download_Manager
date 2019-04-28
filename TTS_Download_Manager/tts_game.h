@@ -18,6 +18,8 @@ public:
     QString getFileName(void);
     int getIndex(void);
     TTS_TreeWidgetItem *getCustomModelTreeItem(void);
+    void loadGameFromFile(void);
+    bool isLoaded(void);
 
 private:
     QString m_jsonPath;
@@ -25,6 +27,8 @@ private:
     int m_gameIndex;
     TTS_TreeWidgetItem *m_customModelParentTreeItem;
     TTS_TreeWidgetItem *m_customImageParentTreeItem;
+
+    bool m_isLoaded;
 
     QMap<QString,TTS_Custom_Model*> m_customModelMap;
     QMap<QString,TTS_CustomImage*> m_customImageMap;

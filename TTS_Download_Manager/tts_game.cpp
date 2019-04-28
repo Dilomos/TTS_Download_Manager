@@ -13,44 +13,59 @@
 TTS_Game::TTS_Game(QString filename,int index)
     : m_jsonPath(filename),m_gameIndex(index)
 {
-    QFile loadFile(filename);
+    m_isLoaded=false;
 
-    if (!loadFile.open(QIODevice::ReadOnly)) {
-        qWarning("Couldn't open save file.");
-    }
+    int lastPoint = m_jsonPath.lastIndexOf("/")+1;
+    QString fileNameNoPath = m_jsonPath.right(m_jsonPath.length()-lastPoint);
 
-    int lastPoint = filename.lastIndexOf(".");
-    QString fileNameNoExt = filename.left(lastPoint);
-    fileNameNoExt+=".png";
-    m_iconePath = fileNameNoExt;
+    QListWidgetItem::setText(fileNameNoPath);
+    QTreeWidgetItem::setText(0,fileNameNoPath);
+}
 
-    QByteArray saveData = loadFile.readAll();
-
-    QJsonDocument loadDoc(QJsonDocument::fromJson(saveData));
-
-    QJsonObject json=loadDoc.object();
-    QString mName;
-
-    if (json.contains("SaveName") && json["SaveName"].isString())
+void TTS_Game::loadGameFromFile(void)
+{
+    if(m_isLoaded == false)
     {
-        mName = json["SaveName"].toString();
-        QListWidgetItem::setText(mName);
-        QTreeWidgetItem::setText(0,mName);
+        m_isLoaded = true;
+        QFile loadFile(m_jsonPath);
+
+        if (!loadFile.open(QIODevice::ReadOnly)) {
+            qWarning("Couldn't open save file.");
+        }
+
+        int lastPoint = m_jsonPath.lastIndexOf(".");
+        QString fileNameNoExt = m_jsonPath.left(lastPoint);
+        fileNameNoExt+=".png";
+        m_iconePath = fileNameNoExt;
+
+        QByteArray saveData = loadFile.readAll();
+
+        QJsonDocument loadDoc(QJsonDocument::fromJson(saveData));
+
+        QJsonObject json=loadDoc.object();
+        QString mName;
+
+        if (json.contains("SaveName") && json["SaveName"].isString())
+        {
+            mName = json["SaveName"].toString();
+            QListWidgetItem::setText(mName);
+            QTreeWidgetItem::setText(0,mName);
+        }
+
+
+        if (json.contains("ObjectStates") && json["ObjectStates"].isArray())
+        {
+            m_customModelParentTreeItem = new TTS_TreeWidgetItem(this,QStringList("Custom Model"));
+            m_customImageParentTreeItem = new TTS_TreeWidgetItem(this,QStringList("Custom Images"));
+
+            QJsonArray objects=json["ObjectStates"].toArray();
+
+            exploreContent(objects);
+        }
+
+        /*foreach (QString value, m_unknownedTag)
+            QTextStream(stdout) <<value<<endl;*/
     }
-
-
-    if (json.contains("ObjectStates") && json["ObjectStates"].isArray())
-    {
-        m_customModelParentTreeItem = new TTS_TreeWidgetItem(this,QStringList("Custom Model"));
-        m_customImageParentTreeItem = new TTS_TreeWidgetItem(this,QStringList("Custom Images"));
-
-        QJsonArray objects=json["ObjectStates"].toArray();
-
-        exploreContent(objects);
-    }
-
-    foreach (QString value, m_unknownedTag)
-        QTextStream(stdout) <<value<<endl;
 }
 
 void TTS_Game::exploreContent(QJsonArray objects)
