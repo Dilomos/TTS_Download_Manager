@@ -1,6 +1,7 @@
 #include "tts_game.h"
 #include "tts_custom_model.h"
 #include "tts_customimage.h"
+#include "tts_customdeck.h"
 
 #include <QFile>
 #include <QJsonArray>
@@ -14,6 +15,9 @@ TTS_Game::TTS_Game(QString filename,int index)
     : m_jsonPath(filename),m_gameIndex(index)
 {
     m_isLoaded=false;
+    m_isSomethingMissing=false;
+    m_filesCount = 0;
+    m_missingFilesCount = 0;
 
     int lastPoint = m_jsonPath.lastIndexOf("/")+1;
     QString fileNameNoPath = m_jsonPath.right(m_jsonPath.length()-lastPoint);
@@ -55,8 +59,13 @@ void TTS_Game::loadGameFromFile(void)
 
         if (json.contains("ObjectStates") && json["ObjectStates"].isArray())
         {
-            m_customModelParentTreeItem = new TTS_TreeWidgetItem(this,QStringList("Custom Model"));
-            m_customImageParentTreeItem = new TTS_TreeWidgetItem(this,QStringList("Custom Images"));
+            m_customModelParentTreeItem = new TTS_TreeWidgetItem(this,QStringList("Models"));
+            m_customTokenParentTreeItem = new TTS_TreeWidgetItem(this,QStringList("Tokens"));
+            m_customTileParentTreeItem = new TTS_TreeWidgetItem(this,QStringList("Tiles"));
+            m_customCardParentTreeItem = new TTS_TreeWidgetItem(this,QStringList("Cards"));
+            m_customFigurineParentTreeItem = new TTS_TreeWidgetItem(this,QStringList("Figurines"));
+            m_customBoardParentTreeItem = new TTS_TreeWidgetItem(this,QStringList("Boards"));
+            m_customDiceParentTreeItem = new TTS_TreeWidgetItem(this,QStringList("Dices"));
 
             QJsonArray objects=json["ObjectStates"].toArray();
 
@@ -77,22 +86,35 @@ void TTS_Game::exploreContent(QJsonArray objects)
         {
             QString ObjectType=object["Name"].toString();
 
-            if(ObjectType == "Figurine_Custom")
+            TTS_AbstractFile*file=nullptr;
+            if( (ObjectType == "Custom_Model")|| (ObjectType == "Custom_Model_Stack") )
             {
-                figCount++;
-            }
-            else if(ObjectType == "Custom_Model")
-            {
-                modelCount++;
+                m_modelCount++;
                 TTS_Custom_Model *customModel = new TTS_Custom_Model(m_customModelParentTreeItem,object);
-                if(!m_customModelMap.contains(customModel->getOnlineModel()))
-                    m_customModelMap[customModel->getOnlineModel()]=customModel;
-                else
+                if(m_filesMap.contains(customModel->getId()))
+                {
                     delete customModel;
+                }
+                else {
+                    file=customModel;
+                }
+
             }
-            else if(ObjectType == "Bag")
+            else if( (ObjectType == "Custom_Model_Bag") || (ObjectType == "Custom_Model_Infinite_Bag") || (ObjectType == "Bag") || (ObjectType == "Infinite_Bag") || (ObjectType == "Custom_Assetbundle_Infinite_Bag") || (ObjectType == "Custom_Assetbundle_Bag") )
             {
-                bagCount++;
+                m_bagCount++;
+                if( object.contains("CustomMesh") )
+                {
+                    TTS_Custom_Model *customModel = new TTS_Custom_Model(m_customModelParentTreeItem,object);
+                    if(m_filesMap.contains(customModel->getId()))
+                    {
+                        delete customModel;
+                    }
+                    else {
+                        file=customModel;
+                    }
+                }
+
                 if (object.contains("ContainedObjects") && object["ContainedObjects"].isArray())
                 {
                     QJsonArray items=object["ContainedObjects"].toArray();
@@ -100,49 +122,137 @@ void TTS_Game::exploreContent(QJsonArray objects)
                     exploreContent(items);
                 }
             }
-            else if(ObjectType == "Infinite_Bag")
+            else if(ObjectType == "Figurine_Custom")
             {
-                infBagCount++;
-                if (object.contains("ContainedObjects") && object["ContainedObjects"].isArray())
+                m_figCount++;
+                TTS_CustomImage *customImage = new TTS_CustomImage(m_customFigurineParentTreeItem,object);
+                if(m_filesMap.contains(customImage->getId()))
                 {
-                    QJsonArray items=object["ContainedObjects"].toArray();
-
-                    exploreContent(items);
-                }
-            }
-            else if(ObjectType == "Quarter")
-                quarterCount++;
-            else if(ObjectType == "DeckCustom")
-                deckCustomCount++;
-            else if(ObjectType == "Deck")
-               deckCount++;
-            else if(ObjectType == "Custom_Board")
-                boardCount++;
-            else if(ObjectType == "Card")
-                cardCount++;
-            else if(ObjectType == "Custom_Tile")
-            {
-                tileCount++;
-                TTS_CustomImage *customImage = new TTS_CustomImage(m_customImageParentTreeItem,object);
-                if(!m_customImageMap.contains(customImage->getOnlineImageFront()))
-                    m_customImageMap[customImage->getOnlineImageFront()]=customImage;
-                else
                     delete customImage;
+                }
+                else {
+                    file=customImage;
+                }
             }
-            else if(ObjectType == "Custom_Token")
+            else if( (ObjectType == "Deck") || (ObjectType == "DeckCustom") || (ObjectType == "Card"))
             {
-                tokenCount++;
+               m_deckCount++;
+               TTS_CustomDeck *customImage = new TTS_CustomDeck(m_customCardParentTreeItem,object);
+               if(m_filesMap.contains(customImage->getId()))
+               {
+                   delete customImage;
+               }
+               else {
+                   file=customImage;
+               }
+            }
+            else if( (ObjectType == "Custom_Tile") || (ObjectType == "Custom_Tile_Stack"))
+            {
+                m_tileCount++;
+                TTS_CustomImage *customImage = new TTS_CustomImage(m_customTileParentTreeItem,object);
+                if(m_filesMap.contains(customImage->getId()))
+                {
+                    delete customImage;
+                }
+                else {
+                    file=customImage;
+                }
+            }
+            else if( (ObjectType == "Custom_Token") || (ObjectType == "Custom_Token_Stack") )
+            {
+                m_tokenCount++;
+                TTS_CustomImage *customImage = new TTS_CustomImage(m_customTokenParentTreeItem,object);
+                if(m_filesMap.contains(customImage->getId()))
+                {
+                    delete customImage;
+                }
+                else {
+                    file=customImage;
+                }
+            }
+            else if(ObjectType == "Custom_Board")
+            {
+                m_boardCount++;
+                TTS_CustomImage *customImage = new TTS_CustomImage(m_customBoardParentTreeItem,object);
+                if(m_filesMap.contains(customImage->getId()))
+                {
+                    delete customImage;
+                }
+                else {
+                    file=customImage;
+                }
+            }
+            else if(ObjectType == "Custom_Dice")
+            {
+                m_diceCount++;
+                TTS_CustomImage *customImage = new TTS_CustomImage(m_customDiceParentTreeItem,object);
+                if(m_filesMap.contains(customImage->getId()))
+                {
+                    delete customImage;
+                }
+                else {
+                    file=customImage;
+                }
+            }
+            else if( (ObjectType == "Custom_Assetbundle")|| (ObjectType == "Tablet"))
+            {
 
             }
+            else if( (ObjectType == "Quarter")|| (ObjectType == "PlayerPawn")|| (ObjectType == "Bowl")|| (ObjectType == "PiecePack_Suns")|| (ObjectType == "go_game_piece_white")|| (ObjectType == "Die_4")|| (ObjectType == "Die_10")|| (ObjectType == "Die_12")|| (ObjectType == "Die_8") || (ObjectType == "Digital_Clock")  || (ObjectType == "BlockRectangle") || (ObjectType == "ScriptingTrigger") || (ObjectType == "FogOfWarTrigger") || (ObjectType == "RandomizeTrigger") || (ObjectType == "Die_20")|| (ObjectType == "Die_6")|| (ObjectType == "3DText") || (ObjectType == "Die_6_Rounded") || (ObjectType == "Tileset_Chest") || (ObjectType == "Notecard") || (ObjectType == "Counter") || (ObjectType == "Die_6_Rounded") )
+                m_otherCount++;
             else
             {
+                if( object.contains("CustomMesh") )
+                {
+                    m_modelCount++;
+                    TTS_Custom_Model *customModel = new TTS_Custom_Model(m_customModelParentTreeItem,object);
+                    if(m_filesMap.contains(customModel->getId()))
+                    {
+                        delete customModel;
+                    }
+                    else {
+                        file=customModel;
+                    }
 
+                }
+
+                if( object.contains("ContainedObjects") )
+                {
+                    m_bagCount++;
+                    if (object.contains("ContainedObjects") && object["ContainedObjects"].isArray())
+                    {
+                        QJsonArray items=object["ContainedObjects"].toArray();
+
+                        exploreContent(items);
+                    }
+                }
+
+                if( object.contains("CustomImage")
+                 || object.contains("CustomDeck")  )
+                    m_otherCount++;
                if(!m_unknownedTag.contains(ObjectType)){
                    m_unknownedTag[ObjectType]=ObjectType;
                }
             }
+
+            if(file != nullptr)
+            {
+                m_filesMap[file->getId()]=file;
+                m_filesCount+=file->getFileCount();
+                if(file->isSomethingMissing())
+                {
+                    m_isSomethingMissing=true;
+                    m_missingFilesCount+=file->getMissingFileCount();
+                    QListWidgetItem::setBackground(QBrush(QColor(Qt::red),Qt::SolidPattern));
+                }
+            }
         }
     }
+}
+
+bool TTS_Game::isSomethingMissing(void)
+{
+   return m_isSomethingMissing;
 }
 
 QString TTS_Game::getPixPath(void)
@@ -163,4 +273,14 @@ int TTS_Game::getIndex(void)
 TTS_TreeWidgetItem *TTS_Game::getCustomModelTreeItem(void)
 {
    return m_customModelParentTreeItem;
+}
+
+int TTS_Game::getFileCount(void)
+{
+    return m_filesCount;
+}
+
+int TTS_Game::getMissingFileCount(void)
+{
+    return m_missingFilesCount;
 }

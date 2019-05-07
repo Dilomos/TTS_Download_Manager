@@ -29,6 +29,9 @@ SOURCES += \
         mainwindow.cpp \
     orbittransformcontroller.cpp \
     tools.cpp \
+    tts_abstractcustomimage.cpp \
+    tts_abstractfile.cpp \
+    tts_customdeck.cpp \
     tts_customimage.cpp \
     tts_game.cpp \
     tts_custom_model.cpp \
@@ -38,6 +41,9 @@ HEADERS += \
         mainwindow.h \
     orbittransformcontroller.h \
     tools.h \
+    tts_abstractcustomimage.h \
+    tts_abstractfile.h \
+    tts_customdeck.h \
     tts_customimage.h \
     tts_game.h \
     tts_custom_model.h \

@@ -1,6 +1,9 @@
 #include "tools.h"
 #include <QStringList>
 #include <QFileInfo>
+#include <QMimeDatabase>
+#include "mainwindow.h"
+#include <QTextStream>
 
 Tools::Tools()
 {
@@ -13,11 +16,32 @@ Tools::Tools()
 QString Tools::getImgSaveFileName(QString file)
 {
     QString localSaveName = file;
-    QStringList pathPart=localSaveName.split('.');
-    QString extension = pathPart.last();
-    if(extension.length() > 3)
-        extension="jpg";
-    localSaveName.remove(QRegExp(QString::fromUtf8("[-`~!@#$%^&*()_â€”+=|:;<>Â«Â»,.?///{}\'\"\\[]")));
+    localSaveName.remove("{Unique}");
+    localSaveName.remove(QRegExp(QString::fromUtf8("[-`~!@#$%^&*()_â€”+=|:;<>Â«Â»,.?///\\{\\}\'\"\\[\\]]")));
+
+    QString extension;
+
+    QString fullPathFile = MainWindow::modPath+"/Images/"+localSaveName+".png";
+    QFileInfo check_file(fullPathFile);
+    if(check_file.exists())
+    {
+        extension="png";
+    }
+    else
+    {
+        fullPathFile = MainWindow::modPath+"/Images/"+localSaveName+".jpg";
+        check_file.setFile(fullPathFile);
+        if(check_file.exists())
+        {
+            extension="jpg";
+        }
+        else {
+            fullPathFile = MainWindow::modPath+"/Images/"+localSaveName;
+            QTextStream(stdout) << "Unable to find: "<<fullPathFile <<endl;
+            extension="jpg";
+        }
+    }
+
     localSaveName+="."+extension;
     return localSaveName;
 }
@@ -25,7 +49,7 @@ QString Tools::getImgSaveFileName(QString file)
 QString Tools::getModelSaveFileName(QString file)
 {
     QString localSaveName = file;
-    localSaveName.remove(QRegExp(QString::fromUtf8("[-`~!@#$%^&*()_â€”+=|:;<>Â«Â»,.?///{}\'\"\\[]")));
+    localSaveName.remove(QRegExp(QString::fromUtf8("[-`~!@#$%^&*()_â€”+=|:;<>Â«Â»,.?///\\{\\}\'\"\\[\\]]")));
     localSaveName+=".obj";
     return localSaveName;
 }

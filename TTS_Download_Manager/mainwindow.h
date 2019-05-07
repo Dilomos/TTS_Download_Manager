@@ -31,7 +31,6 @@ protected:
     void run() override;
 
 signals:
-    void resultReady(const QString &s);
     void readingGameNumber(const int &num);
 
 private:
@@ -52,6 +51,7 @@ public:
 private:
     Ui::MainWindow *ui;
     int gameCount;
+    int gameWithMissingFilesCount;
     Qt3DExtras::Qt3DWindow *view;
 
     Qt3DCore::QEntity *rootEntity;
@@ -71,6 +71,7 @@ public slots:
     void itemClicked(QTreeWidgetItem * item,QTreeWidgetItem * prevItem);
 
     void updateProgressBar(const int &val);
+    void hideProgressBar(void);
 
 };
 

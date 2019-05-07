@@ -25,23 +25,77 @@ TTS_Custom_Model::TTS_Custom_Model(TTS_TreeWidgetItem*parent,QJsonObject &object
     setDisplayable(true);
     set3DModel(true);
 
-    m_localModel=MainWindow::modPath+"/Models/"+Tools::getModelSaveFileName(m_model);
-    if(!Tools::fileExists(m_localModel))
+    m_modelMissing=false;
+    m_textureMissing=false;
+    m_colliderMissing=false;
+    m_normalMissing=false;
+    m_missingFilesCount=0;
+    m_filesCount=0;
+
+    if(m_model != "")
+    {
+        m_filesCount++;
+        m_localModel=MainWindow::modPath+"/Models/"+Tools::getModelSaveFileName(m_model);
+        if(!Tools::fileExists(m_localModel))
+        {
+            m_modelMissing=true;
+            m_missingFilesCount++;
+            setBackground(0,QBrush(QColor(Qt::red),Qt::SolidPattern));
+        }
+    }
+    else {
         m_localModel ="";
+        setBackground(0,QBrush(QColor(Qt::red),Qt::SolidPattern));
+    }
 
-    m_localCollider=MainWindow::modPath+"/Models/"+Tools::getModelSaveFileName(m_collider);
-    if(!Tools::fileExists(m_localCollider))
+    if(m_collider != "")
+    {
+        m_filesCount++;
+        m_localCollider=MainWindow::modPath+"/Models/"+Tools::getModelSaveFileName(m_collider);
+        if(!Tools::fileExists(m_localCollider))
+        {
+            m_colliderMissing=true;
+            m_missingFilesCount++;
+            setBackground(0,QBrush(QColor(Qt::red),Qt::SolidPattern));
+        }
+    }
+    else {
         m_localCollider ="";
+    }
 
-    m_localTexture=MainWindow::modPath+"/Images/"+Tools::getImgSaveFileName(m_texture);
-    if(!Tools::fileExists(m_localTexture))
+    if(m_texture != "")
+    {
+        m_filesCount++;
+        m_localTexture=MainWindow::modPath+"/Images/"+Tools::getImgSaveFileName(m_texture);
+        if(!Tools::fileExists(m_localTexture))
+        {
+            m_textureMissing=true;
+            m_missingFilesCount++;
+            setBackground(0,QBrush(QColor(Qt::red),Qt::SolidPattern));
+        }
+    }
+    else {
         m_localTexture ="";
+    }
 
-    m_localNormal=MainWindow::modPath+"/Images/"+Tools::getImgSaveFileName(m_normal);
-    if(!Tools::fileExists(m_localNormal))
+    if(m_normal != "")
+    {
+        m_filesCount++;
+        m_localNormal=MainWindow::modPath+"/Images/"+Tools::getImgSaveFileName(m_normal);
+        if(!Tools::fileExists(m_localNormal))
+        {
+            m_normalMissing=true;
+            m_missingFilesCount++;
+        }
+    }
+    else {
         m_localNormal ="";
+    }
 
+    m_id=m_model+m_texture+m_normal+m_collider;
 }
+
+
 
 QString TTS_Custom_Model::getOnlineTexture(void)
 {
@@ -61,4 +115,41 @@ QString TTS_Custom_Model::getLocalTexture(void)
 QString TTS_Custom_Model::getLocalModel(void)
 {
     return m_localModel;
+}
+
+QString TTS_Custom_Model::getOnlineNormal(void)
+{
+    return m_normal;
+}
+
+QString TTS_Custom_Model::getOnlineCollider(void)
+{
+    return m_collider;
+}
+
+QString TTS_Custom_Model::getLocalNormal(void)
+{
+    return m_localNormal;
+}
+
+QString TTS_Custom_Model::getLocalCollider(void)
+{
+    return m_localCollider;
+}
+
+bool TTS_Custom_Model::isModelMissing(void)
+{
+   return m_modelMissing;
+}
+bool TTS_Custom_Model::isTextureMissing(void)
+{
+    return m_textureMissing;
+}
+bool TTS_Custom_Model::isNormalMissing(void)
+{
+    return m_normalMissing;
+}
+bool TTS_Custom_Model::isColliderMissing(void)
+{
+    return m_colliderMissing;
 }

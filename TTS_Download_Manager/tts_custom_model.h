@@ -2,9 +2,10 @@
 #define TTS_CUSTOM_MODEL_H
 
 #include "tts_treewidgetitem.h"
+#include "tts_abstractfile.h"
 #include <QJsonObject>
 
-class TTS_Custom_Model : public TTS_TreeWidgetItem
+class TTS_Custom_Model : public TTS_TreeWidgetItem,public TTS_AbstractFile
 {
 public:
     TTS_Custom_Model(TTS_TreeWidgetItem*parent,QJsonObject &object);
@@ -12,6 +13,16 @@ public:
     QString getOnlineModel(void);
     QString getLocalTexture(void);
     QString getLocalModel(void);
+
+    QString getOnlineNormal(void);
+    QString getOnlineCollider(void);
+    QString getLocalNormal(void);
+    QString getLocalCollider(void);
+
+    bool isModelMissing(void);
+    bool isTextureMissing(void);
+    bool isNormalMissing(void);
+    bool isColliderMissing(void);
 
 private:
     QString m_name;
@@ -25,6 +36,12 @@ private:
     QString m_localTexture;
     QString m_localCollider;
     QString m_localNormal;
+
+
+    bool m_modelMissing;
+    bool m_textureMissing;
+    bool m_colliderMissing;
+    bool m_normalMissing;
 
 };
 
