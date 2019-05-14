@@ -1,6 +1,7 @@
 #include "tts_abstractfile.h"
 
-TTS_AbstractFile::TTS_AbstractFile()
+TTS_AbstractFile::TTS_AbstractFile(TTS_TreeWidgetItem*parent)
+: TTS_TreeWidgetItem(parent,QStringList(""))
 {
 
 }

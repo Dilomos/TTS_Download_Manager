@@ -3,7 +3,7 @@
 #include "tools.h"
 
 TTS_AbstractCustomImage::TTS_AbstractCustomImage(TTS_TreeWidgetItem*parent)
-    : TTS_TreeWidgetItem(parent,QStringList(""))
+    :TTS_AbstractFile(parent)
 {
 
 }

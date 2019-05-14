@@ -22,6 +22,7 @@ public:
     bool isSomethingMissing(void);
     int getFileCount(void);
     int getMissingFileCount(void);
+    void loadObject(QJsonObject object,TTS_TreeWidgetItem *parent=nullptr);
 
 private:
     QString m_jsonPath;
@@ -34,9 +35,14 @@ private:
     TTS_TreeWidgetItem *m_customFigurineParentTreeItem;
     TTS_TreeWidgetItem *m_customBoardParentTreeItem;
     TTS_TreeWidgetItem *m_customDiceParentTreeItem;
+    TTS_TreeWidgetItem *m_customTableParentTreeItem;
+    TTS_TreeWidgetItem *m_customAssetbundleParentTreeItem;
+    TTS_TreeWidgetItem *m_customTabletParentTreeItem;
 
     bool m_isLoaded;
     bool m_isSomethingMissing;
+
+    QString m_Name;
 
     QMap<QString,TTS_AbstractFile*> m_filesMap;
     void exploreContent(QJsonArray objects);

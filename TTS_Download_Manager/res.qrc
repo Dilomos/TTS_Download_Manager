@@ -2,5 +2,6 @@
     <qresource prefix="/">
         <file>empty.obj</file>
         <file>empty.png</file>
+        <file>icon.png</file>
     </qresource>
 </RCC>

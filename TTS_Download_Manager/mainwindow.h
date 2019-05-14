@@ -26,15 +26,20 @@ class GameLoaderThread : public QThread
     Q_OBJECT
 
 public:
-    explicit GameLoaderThread(QListWidget* m_listToLoad);
+    explicit GameLoaderThread(QListWidget* m_listToLoad,int id,int startIndex,int lastIndex);
 protected:
     void run() override;
 
 signals:
-    void readingGameNumber(const int &num);
+    void readingGameNumber(const int &num,int threadID);
 
 private:
   QListWidget* m_listToLoad;
+
+  int m_id;
+  int m_startIndex;
+  int m_lastIndex;
+
 
 };
 
@@ -46,6 +51,7 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     static QString modPath;
+    static QString exportPath;
     void searchGames(void);
 
 private:
@@ -63,15 +69,26 @@ private:
     Qt3DRender::QTextureLoader *customModelTextureLoader;
     Qt3DExtras::QTextureMaterial *customModelTextureMaterial;
 
+    void getParameterFromFile();
     void init3DView(void);
+
+    QVector<int> m_threadVal;
+    int m_threadFinishedCount;
+
+    void saveParametersToFile(void);
 
 
 public slots:
     void gameClicked(QListWidgetItem * item,QListWidgetItem * prevItem);
     void itemClicked(QTreeWidgetItem * item,QTreeWidgetItem * prevItem);
 
-    void updateProgressBar(const int &val);
+    void openFileExternally(void);
+
+    void updateProgressBar(const int &val,int threadID);
     void hideProgressBar(void);
+
+    void setModsFolder(bool checked);
+    void setExportFolder(bool checked);
 
 };
 

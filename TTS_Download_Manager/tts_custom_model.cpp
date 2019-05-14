@@ -5,7 +5,7 @@
 
 
 TTS_Custom_Model::TTS_Custom_Model(TTS_TreeWidgetItem*parent,QJsonObject &object)
-    : TTS_TreeWidgetItem(parent,QStringList(""))
+ :TTS_AbstractFile(parent)
 {
     m_name=object["Nickname"].toString();
     if(m_name == "")

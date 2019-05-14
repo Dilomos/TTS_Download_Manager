@@ -31,10 +31,13 @@ SOURCES += \
     tools.cpp \
     tts_abstractcustomimage.cpp \
     tts_abstractfile.cpp \
+    tts_customassetbundle.cpp \
     tts_customdeck.cpp \
     tts_customimage.cpp \
+    tts_customtablet.cpp \
     tts_game.cpp \
     tts_custom_model.cpp \
+    tts_tableandsky.cpp \
     tts_treewidgetitem.cpp
 
 HEADERS += \
@@ -43,10 +46,13 @@ HEADERS += \
     tools.h \
     tts_abstractcustomimage.h \
     tts_abstractfile.h \
+    tts_customassetbundle.h \
     tts_customdeck.h \
     tts_customimage.h \
+    tts_customtablet.h \
     tts_game.h \
     tts_custom_model.h \
+    tts_tableandsky.h \
     tts_treewidgetitem.h
 
 FORMS += \

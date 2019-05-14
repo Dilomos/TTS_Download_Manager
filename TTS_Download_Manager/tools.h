@@ -9,6 +9,7 @@ public:
     Tools();
     static QString getImgSaveFileName(QString file);
     static QString getModelSaveFileName(QString file);
+    static QString getAssetSaveFileName(QString file);
     static bool fileExists(QString path);
 };
 

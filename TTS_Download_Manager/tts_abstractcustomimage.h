@@ -1,9 +1,8 @@
 #ifndef TTS_ABSTRACTCUSTOMIMAGE_H
 #define TTS_ABSTRACTCUSTOMIMAGE_H
-#include "tts_treewidgetitem.h"
 #include "tts_abstractfile.h"
 
-class TTS_AbstractCustomImage: public TTS_TreeWidgetItem, public TTS_AbstractFile
+class TTS_AbstractCustomImage:public TTS_AbstractFile
 {
 public:
     TTS_AbstractCustomImage(TTS_TreeWidgetItem*parent);

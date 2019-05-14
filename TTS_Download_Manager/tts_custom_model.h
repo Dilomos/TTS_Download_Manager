@@ -1,11 +1,11 @@
 #ifndef TTS_CUSTOM_MODEL_H
 #define TTS_CUSTOM_MODEL_H
 
-#include "tts_treewidgetitem.h"
+
 #include "tts_abstractfile.h"
 #include <QJsonObject>
 
-class TTS_Custom_Model : public TTS_TreeWidgetItem,public TTS_AbstractFile
+class TTS_Custom_Model :public TTS_AbstractFile
 {
 public:
     TTS_Custom_Model(TTS_TreeWidgetItem*parent,QJsonObject &object);
